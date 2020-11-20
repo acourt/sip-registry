@@ -7,7 +7,7 @@ class SipRegistry:
             sipRecord = json.loads(line)
             self.recordDict[sipRecord['addressOfRecord']] = line
 
-    def getAorDataString(self, aor):
+    def getSipDataString(self, aor):
         """
         docstring
         """
