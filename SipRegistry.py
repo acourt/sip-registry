@@ -1,0 +1,15 @@
+import json
+
+class SipRegistry:
+    def __init__(self, fileName):
+        self.recordDict = {}
+        for line in open(fileName, 'r') :
+            sipRecord = json.loads(line)
+            self.recordDict[sipRecord['addressOfRecord']] = line
+
+    def getAorDataString(self, aor):
+        """
+        docstring
+        """
+        return self.recordDict[aor]
+
