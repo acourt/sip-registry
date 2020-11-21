@@ -11,12 +11,11 @@ def main():
     logging.basicConfig(
     level=logging.DEBUG,
     format='%(name)s: %(message)s',
-    stream=sys.stderr,)
+    stream=sys.stdout,)
 
     sipRegs = SipRegistry.SipRegistry("regs")
-    print(sipRegs.getSipDataString('01574393bae33557c3000100620007'))
     loop = asyncio.get_event_loop()
-    coro = asyncio.start_server(handleRecordRequest, '127.0.0.1', 8888, loop=loop)
+    coro = asyncio.start_server(handleConnection, '127.0.0.1', 8888, loop=loop)
     server = loop.run_until_complete(coro)
 
     # Serve requests until Ctrl+C is pressed
@@ -31,6 +30,14 @@ def main():
     loop.run_until_complete(server.wait_closed())
     loop.close()
 
+async def handleConnection(reader, writer):
+    try:
+        await asyncio.wait_for(handleRecordRequest(reader, writer), timeout=10)
+    except asyncio.TimeoutError:
+        print("Connection Timeout ")
+        logging.error("Connection Timeout ")
+    finally:
+        writer.close()
 
 async def handleRecordRequest(reader, writer):
     global sipRegs
@@ -41,7 +48,6 @@ async def handleRecordRequest(reader, writer):
     sipRecordStr = sipRegs.getSipDataString(aorString)
     logging.info("Sending %s", sipRecordStr)
     writer.write(sipRecordStr.encode('utf-8'))
-    writer.close()
 
 if __name__ == "__main__":
     main()
