@@ -14,7 +14,7 @@ def main():
 
     # Parse the registry
     logging.info("Parsing registry")
-    sipRegs = SipRegistry.SipRegistry("regs")
+    sipRegs = SipRegistry.SipRegistry("../regs")
     logging.info("Parsing complete")
 
     # Set up the event server
