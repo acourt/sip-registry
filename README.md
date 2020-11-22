@@ -47,6 +47,7 @@ python src/SipRegistryServer.py
 
 ### Running the tests
 ```sh
+cd test
 python test/test.py
 ```
 
