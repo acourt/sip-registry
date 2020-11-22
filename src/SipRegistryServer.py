@@ -61,6 +61,6 @@ async def handleRecordRequest(reader, writer):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--file', type=str, default='../regs', required=False)
+    parser.add_argument('-f', '--file', type=str, default='data/regs', required=False)
     args = parser.parse_args()
     SipRegistryServer(args.file)
