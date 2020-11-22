@@ -1,13 +1,11 @@
 import unittest
+import json
 import time
 import socket
 from subprocess import Popen
 
+testRegsFileName = "./testdata/testregs"
 invalidAor  =   '01554ff4501912c5a500010062000A'
-validAor    =   '01554ff4501912c5a5000100620009'
-validRecordString = '{"addressOfRecord":"01554ff4501912c5a5000100620009","tenantId":"0127d974-f9f3-0704-2dee-000100420001","uri":"sip:01554ff4501912c5a5000100620009@40.255.16.32:1055","contact":"<sip:01554ff4501912c5a5000100620009@42.50.137.11:1055>;methods=\\"INVITE, ACK, BYE, CANCEL, OPTIONS, INFO, MESSAGE, SUBSCRIBE, NOTIFY, PRACK, UPDATE, REFER\\"","path":["<sip:Mi0xOTAuMTQ4LjI1NC4yNy0xMDUz@19.235.214.18:5060;lr>"],"source":"158.131.24.166:1053","target":"189.210.60.153:5061","userAgent":"polycom.vvx.400","rawUserAgent":"PolycomVVX-VVX_400-UA/115.43.182.253","created":"2017-01-06T03:06:20.299Z","lineId":"01554ff3-dad0-ec00-45a5-000100620009"}\n'
-
-
 
 class TestSipRegistryServer(unittest.TestCase):
 
@@ -65,6 +63,23 @@ if __name__ == '__main__':
     Start the server asynchronously with test values and then execute unit tests.
     Terminate server subprocess when finished
     """
-    p = Popen(["python", "../src/SipRegistryServer.py", "--file", "./testdata/testregs"])
-    unittest.main()
+    global validRecordString
+    global validAor
+
+    # Read the test regs file
+    with open(testRegsFileName, 'r') as f:
+        line = f.readline()
+        sipRecord = json.loads(line)
+    validRecordString = line
+    validAor = sipRecord['addressOfRecord']
+
+    # Start a server subprocess
+    p = Popen(["python", "../src/SipRegistryServer.py", "--file", testRegsFileName])
+    
+    # Execute the tests
+    unittest.main(exit=False)
+    
+    # Kill the server subprocess
     p.terminate()
+    poll = p.wait(10)
+    
