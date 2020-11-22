@@ -39,9 +39,15 @@ class TestSipRegistryServer(unittest.TestCase):
         """
         Test that the server closes the connection when waiting for too long
         """
+        timeoutOccured = False
         time.sleep(11)
-        print("timeout")
-    
+        try:
+            sock.send(validAor.encode('utf-8'))
+            sock.recv(1024)
+        except ConnectionAbortedError:
+            timeoutOccured = True
+        self.assertTrue(timeoutOccured)
+
     def test_incorrect_aor(self):
         """
         Test that sending an invalid AoR returns a empty line
