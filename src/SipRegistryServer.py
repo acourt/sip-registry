@@ -2,10 +2,11 @@ import SipRegistry
 import asyncio
 import logging
 import sys
+import argparse
 
 log = None
 
-def main():
+def SipRegistryServer(sipRegistryFileName):
     global sipRegs
     logging.basicConfig(
     level=logging.DEBUG,
@@ -14,7 +15,7 @@ def main():
 
     # Parse the registry
     logging.info("Parsing registry")
-    sipRegs = SipRegistry.SipRegistry("../regs")
+    sipRegs = SipRegistry.SipRegistry(sipRegistryFileName)
     logging.info("Parsing complete")
 
     # Set up the event server
@@ -59,4 +60,7 @@ async def handleRecordRequest(reader, writer):
     writer.write(sipRecordStr.encode('utf-8'))
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--file', type=str, default='../regs', required=False)
+    args = parser.parse_args()
+    SipRegistryServer(args.file)

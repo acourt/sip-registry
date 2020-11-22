@@ -1,12 +1,12 @@
 import unittest
 import time
 import socket
+from subprocess import Popen
 
-validAor = '0148c1f489badb837d000100620002'
-validRecordString = '{"addressOfRecord":"0148c1f489badb837d000100620002","tenantId":"0127d974-f9f3-0704-2dee-000100420001","uri":"sip:0148c1f489badb837d000100620002@9.98.167.222;jbcuser=cpe70","contact":"<sip:0148c1f489badb837d000100620002@120.133.72.122;jbcuser=cpe70>;methods=\\"INVITE, ACK, BYE, CANCEL, OPTIONS, INFO, MESSAGE, SUBSCRIBE, NOTIFY, PRACK, UPDATE, REFER\\"","path":["<sip:Mi0xOTkuMTkyLjE2NS4xOTQtMTk2MjI@61.0.24.25:5060;lr>"],"source":"191.12.63.101:19622","target":"69.92.33.38:5061","userAgent":"polycom.vvx.500","rawUserAgent":"PolycomVVX-VVX_500-UA/59.124.31.194","created":"2016-12-13T04:48:30.889Z","lineId":"0148c1f4-8913-4d7f-d37d-000100620002"}\n'
-validAor2 = 'h1uDjvwQcLWDOEfqcwwT9rpMGLPsVD'
-validRecordString2 = '{"addressOfRecord":"h1uDjvwQcLWDOEfqcwwT9rpMGLPsVD","tenantId":"0127d974-f9f3-0704-2dee-000100420001","uri":"sip:h1uDjvwQcLWDOEfqcwwT9rpMGLPsVD@221.33.20.80","contact":"<sip:h1uDjvwQcLWDOEfqcwwT9rpMGLPsVD@105.183.18.90>;methods=\\"INVITE, ACK, BYE, CANCEL, OPTIONS, INFO, MESSAGE, SUBSCRIBE, NOTIFY, PRACK, UPDATE, REFER\\"","path":["<sip:Mi00NS41Ni4yMS4zLTUwNjA@219.85.9.241:5060;lr>"],"source":"129.124.91.78:5060","target":"18.70.131.10:5061","userAgent":"polycom.vvx.500","rawUserAgent":"PolycomVVX-VVX_500-UA/242.196.97.185","created":"2017-01-06T05:19:37.137Z","lineId":"6d69c4ad-13b6-4fd1-a412-4d8112410ecc"}\n'
-invalidAor = '0148c1f489badb837d000100620001'
+invalidAor  =   '01554ff4501912c5a500010062000A'
+validAor    =   '01554ff4501912c5a5000100620009'
+validRecordString = '{"addressOfRecord":"01554ff4501912c5a5000100620009","tenantId":"0127d974-f9f3-0704-2dee-000100420001","uri":"sip:01554ff4501912c5a5000100620009@40.255.16.32:1055","contact":"<sip:01554ff4501912c5a5000100620009@42.50.137.11:1055>;methods=\\"INVITE, ACK, BYE, CANCEL, OPTIONS, INFO, MESSAGE, SUBSCRIBE, NOTIFY, PRACK, UPDATE, REFER\\"","path":["<sip:Mi0xOTAuMTQ4LjI1NC4yNy0xMDUz@19.235.214.18:5060;lr>"],"source":"158.131.24.166:1053","target":"189.210.60.153:5061","userAgent":"polycom.vvx.400","rawUserAgent":"PolycomVVX-VVX_400-UA/115.43.182.253","created":"2017-01-06T03:06:20.299Z","lineId":"01554ff3-dad0-ec00-45a5-000100620009"}\n'
+
 
 
 class TestSipRegistryServer(unittest.TestCase):
@@ -31,7 +31,6 @@ class TestSipRegistryServer(unittest.TestCase):
         # Send a request to the host
         sock.send(validAor.encode('utf-8'))
 
-        # Get the host's response, no more than, say, 1,024 bytes
         response_data = sock.recv(1024)
         
         self.assertEqual(response_data.decode('utf-8'), validRecordString)
@@ -47,14 +46,19 @@ class TestSipRegistryServer(unittest.TestCase):
         """
         Test that sending an invalid AoR returns a empty line
         """
-                # Send a request to the host
+        # Send a request to the host
         sock.send(invalidAor.encode('utf-8'))
 
-        # Get the host's response, no more than, say, 1,024 bytes
         response_data = sock.recv(1024)
         
         self.assertEqual(response_data.decode('utf-8'), '\n')
 
 
 if __name__ == '__main__':
+    """
+    Start the server asynchronously with test values and then execute unit tests.
+    Terminate server subprocess when finished
+    """
+    p = Popen(["python", "../src/SipRegistryServer.py", "--file", "./testdata/testregs"])
     unittest.main()
+    p.terminate()
